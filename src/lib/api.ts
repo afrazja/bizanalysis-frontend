@@ -63,3 +63,16 @@ export async function getSnapshot(id: string) {
   const { data } = await api.get<SnapshotOut>(`/snapshots/${id}`);
   return data;
 }
+
+export type SuggestSWOTIn = {
+  company?: string;
+  industry?: string;
+  markets?: { name: string; growth_rate: number }[];
+  products?: { name: string; market_share: number; largest_rival_share: number }[];
+  points?: BCGPoint[]; // optional; pass current chart points
+};
+
+export async function suggestSWOT(body: SuggestSWOTIn){
+  const { data } = await api.post<SWOTOut>('/ai/suggest-swot', body);
+  return data;
+}

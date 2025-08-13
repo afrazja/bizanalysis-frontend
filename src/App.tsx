@@ -61,6 +61,10 @@ export default function App(){
   const [loadingSnaps, setLoadingSnaps] = useState(false);
   const [snaps, setSnaps] = useState<SnapshotOut[]>([]);
   const [kindFilter, setKindFilter] = useState<Kind>('BCG');
+  
+  // Simple state for company context (could be enhanced with a form later)
+  const [companyName, setCompanyName] = useState<string>('My Company');
+  const [industry, setIndustry] = useState<string>('Technology');
 
   const chartRef = useRef<HTMLDivElement>(null);
   const swotRef = useRef<SwotRef>(null);
@@ -224,7 +228,40 @@ export default function App(){
         </div>
       </div>
 
-      <SwotEditor ref={swotRef} />
+      <div className="card" style={{ marginTop: 16 }}>
+        <h3 style={{ marginTop: 0 }}>Company Context (for AI Suggestions)</h3>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
+          <div>
+            <label className="small">Company Name</label>
+            <input 
+              type="text" 
+              className="btn" 
+              value={companyName} 
+              onChange={(e) => setCompanyName(e.target.value)}
+              placeholder="My Company"
+              style={{ minWidth: 150 }}
+            />
+          </div>
+          <div>
+            <label className="small">Industry</label>
+            <input 
+              type="text" 
+              className="btn" 
+              value={industry} 
+              onChange={(e) => setIndustry(e.target.value)}
+              placeholder="Technology"
+              style={{ minWidth: 150 }}
+            />
+          </div>
+        </div>
+      </div>
+
+      <SwotEditor 
+        ref={swotRef} 
+        bcgPoints={data}
+        companyName={companyName}
+        industry={industry}
+      />
 
       <CompareBCG />
     </div>
