@@ -58,3 +58,8 @@ export async function postSWOT(swot: SWOTIn) {
   const { data } = await api.post<SWOTOut>('/swot', swot);
   return data;
 }
+
+export async function getSnapshot(id: string) {
+  const { data } = await api.get<SnapshotOut>(`/snapshots/${id}`);
+  return data;
+}
