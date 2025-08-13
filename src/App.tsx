@@ -11,7 +11,7 @@ import {
   type SnapshotOut
 } from './lib/api';
 import QuickBCGWizard from './components/QuickBCGWizard';
-import SwotEditor from './components/SwotEditor';
+import SwotEditor, { SwotRef } from './components/SwotEditor';
 import { exportSummaryPDF } from './lib/pdf';
 
 const sample: ProductIn[] = [
@@ -62,6 +62,7 @@ export default function App(){
   const [kindFilter, setKindFilter] = useState<Kind>('BCG');
 
   const chartRef = useRef<HTMLDivElement>(null);
+  const swotRef = useRef<SwotRef>(null);
 
   const run = async () => {
     const res = await postBCG(sample);
@@ -127,16 +128,10 @@ export default function App(){
         <h2 style={{ margin: 0 }}>Biz Analysis (MVP)</h2>
         <div className="small">API Base: <span className="badge">{import.meta.env.VITE_API_BASE_URL || 'NOT SET'}</span></div>
         <div style={{ marginTop: 8 }}>
-          <button className="btn" onClick={() => exportSummaryPDF({
-            title: 'Biz Analysis — Demo Summary',
-            bcgSelector: '#bcg-chart',
-            swot: {
-              strengths: [], // We'll pass real SWOT data in step 5
-              weaknesses: [],
-              opportunities: [],
-              threats: []
-            }
-          })}>Export PDF</button>
+          <button className="btn" onClick={() => {
+            const sw = swotRef.current?.get();
+            exportSummaryPDF({ title:'Biz Analysis — Demo Summary', bcgSelector:'#bcg-chart', swot: sw });
+          }}>Export PDF</button>
         </div>
       </div>
 
@@ -228,7 +223,7 @@ export default function App(){
         </div>
       </div>
 
-      <SwotEditor />
+      <SwotEditor ref={swotRef} />
     </div>
   );
 }
