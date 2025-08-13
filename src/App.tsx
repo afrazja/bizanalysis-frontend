@@ -170,13 +170,7 @@ export default function App(){
       <CsvImportBCG onComputed={setData} />
 
       <div className="grid">
-        <div className="card">
-          <h3>Health Check</h3>
-          <button className="btn" onClick={check}>GET /health</button>
-          <div className="small" style={{ marginTop: 8 }}>Response: {apiOk}</div>
-        </div>
-
-        <div className="card">
+        <div className="card" style={{ gridColumn: '1 / span 2' }}>
           <h3>BCG Matrix (sample)</h3>
           <div style={{ marginBottom: 12 }}>
             <h4 style={{ margin: '4px 0' }}>Quick BCG Wizard (enter your own numbers)</h4>
@@ -199,15 +193,18 @@ export default function App(){
               padding: 16, 
               background: '#fff', 
               borderRadius: 8,
-              width: '950px', // Fixed width to match chart
+              width: '100%',
+              maxWidth: '1200px',
               display: 'flex',
               justifyContent: 'center',
               boxSizing: 'border-box',
-              overflow: 'visible'
+              overflow: 'visible',
+              marginLeft: 'auto',
+              marginRight: 'auto'
             }}
           >
-            <div style={{ width: '900px', height: '500px' }}>
-              <ScatterChart width={900} height={500}>
+            <div style={{ width: '1100px', height: '600px' }}>
+              <ScatterChart width={1100} height={600}>
                 <CartesianGrid />
                 <XAxis type="number" dataKey="rms" name="RMS" domain={[0, 'auto']} />
                 <YAxis type="number" dataKey="growth" name="Growth %" domain={[0, 'auto']} />
