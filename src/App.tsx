@@ -12,6 +12,7 @@ import {
 } from './lib/api';
 import QuickBCGWizard from './components/QuickBCGWizard';
 import SwotEditor, { SwotRef } from './components/SwotEditor';
+import CompareBCG from './components/CompareBCG';
 import { exportSummaryPDF } from './lib/pdf';
 
 const sample: ProductIn[] = [
@@ -224,6 +225,8 @@ export default function App(){
       </div>
 
       <SwotEditor ref={swotRef} />
+
+      <CompareBCG />
     </div>
   );
 }
