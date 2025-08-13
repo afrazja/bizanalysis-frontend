@@ -65,32 +65,42 @@ export default function CsvImportBCG({ onComputed }: { onComputed: (points: BCGP
     try {
       console.log('Starting CSV import with rows:', rows.length);
       
-      // 1) Create unique markets (by name)
-      const marketMap = new Map<string, MarketIn>();
-      for (const r of rows){
-        if (!marketMap.has(r.market_name)){
-          marketMap.set(r.market_name, { name: r.market_name, growth_rate: r.market_growth_rate });
-        }
-      }
-      console.log('Creating markets:', Array.from(marketMap.values()));
-      const createdMkts = await bulkMarkets(Array.from(marketMap.values()));
-      console.log('Created markets:', createdMkts);
+      let marketsCreated = 0;
+      let productsCreated = 0;
       
-      const nameToId = new Map<string, string>();
-      createdMkts.forEach(m => nameToId.set(m.name, m.id));
+      // Try to create database entities, but don't fail if database is unavailable
+      try {
+        // 1) Create unique markets (by name)
+        const marketMap = new Map<string, MarketIn>();
+        for (const r of rows){
+          if (!marketMap.has(r.market_name)){
+            marketMap.set(r.market_name, { name: r.market_name, growth_rate: r.market_growth_rate });
+          }
+        }
+        console.log('Creating markets:', Array.from(marketMap.values()));
+        const createdMkts = await bulkMarkets(Array.from(marketMap.values()));
+        console.log('Created markets:', createdMkts);
+        marketsCreated = createdMkts.length;
+        
+        const nameToId = new Map<string, string>();
+        createdMkts.forEach(m => nameToId.set(m.name, m.id));
 
-      // 2) Create products
-      const products: ProductCreate[] = rows.map(r => ({
-        name: r.product_name,
-        market_id: nameToId.get(r.market_name) ?? undefined,
-        market_share: r.market_share_percent / 100,
-        largest_rival_share: r.largest_rival_share_percent / 100,
-      }));
-      console.log('Creating products:', products);
-      await bulkProducts(products);
-      console.log('Products created successfully');
+        // 2) Create products
+        const products: ProductCreate[] = rows.map(r => ({
+          name: r.product_name,
+          market_id: nameToId.get(r.market_name) ?? undefined,
+          market_share: r.market_share_percent / 100,
+          largest_rival_share: r.largest_rival_share_percent / 100,
+        }));
+        console.log('Creating products:', products);
+        await bulkProducts(products);
+        console.log('Products created successfully');
+        productsCreated = products.length;
+      } catch (dbError) {
+        console.warn('Database operations failed, proceeding with BCG computation only:', dbError);
+      }
 
-      // 3) Compute BCG points directly for the chart
+      // 3) Compute BCG points directly for the chart (this should always work)
       const bcgInput = rows.map(r => ({
         name: r.product_name,
         market_share: r.market_share_percent / 100,
@@ -103,7 +113,12 @@ export default function CsvImportBCG({ onComputed }: { onComputed: (points: BCGP
       
       onComputed(pts);
       console.log('Called onComputed with points');
-      setResultMsg(`Imported ${createdMkts.length} market(s) and ${products.length} product(s). BCG computed.`);
+      
+      if (marketsCreated > 0 || productsCreated > 0) {
+        setResultMsg(`Imported ${marketsCreated} market(s) and ${productsCreated} product(s). BCG computed with ${pts.length} points.`);
+      } else {
+        setResultMsg(`BCG computed with ${pts.length} points. (Database unavailable - entities not persisted)`);
+      }
     } catch (error) {
       console.error('CSV import error:', error);
       setParsingError(`Import failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -118,7 +133,7 @@ export default function CsvImportBCG({ onComputed }: { onComputed: (points: BCGP
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
         <input type="file" accept=".csv" onChange={e => e.target.files && e.target.files[0] && handleFile(e.target.files[0])} />
         <button className="btn" onClick={downloadTemplate}>Download Template</button>
-        <button className="btn" disabled={!hasRows || busy} onClick={createEntitiesAndCompute}>{busy ? 'Importing…' : 'Create & Compute BCG'}</button>
+        <button className="btn" disabled={!hasRows || busy} onClick={createEntitiesAndCompute}>{busy ? 'Computing…' : 'Compute BCG from CSV'}</button>
         {parsingError && <span className="small" style={{ color: '#b91c1c' }}>{parsingError}</span>}
         {resultMsg && <span className="small" style={{ color: '#065f46' }}>{resultMsg}</span>}
       </div>
