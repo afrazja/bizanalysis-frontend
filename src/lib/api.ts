@@ -76,3 +76,17 @@ export async function suggestSWOT(body: SuggestSWOTIn){
   const { data } = await api.post<SWOTOut>('/ai/suggest-swot', body);
   return data;
 }
+
+export type MarketIn = { company_id?: string | null; name: string; growth_rate: number; size?: number | null };
+export type MarketOut = MarketIn & { id: string };
+export type ProductCreate = {
+  company_id?: string | null; market_id?: string | null; name: string;
+  market_share?: number | null; largest_rival_share?: number | null; price?: number | null; revenue?: number | null;
+};
+export type ProductOut = ProductCreate & { id: string };
+
+export async function createMarket(m: MarketIn){ const { data } = await api.post<MarketOut>('/markets', m); return data; }
+export async function createProduct(p: ProductCreate){ const { data } = await api.post<ProductOut>('/products', p); return data; }
+export async function bulkMarkets(items: MarketIn[]){ const { data } = await api.post<{items: MarketOut[]}>('/markets/bulk', { items }); return data.items; }
+export async function bulkProducts(items: ProductCreate[]){ const { data } = await api.post<{items: ProductOut[]}>('/products/bulk', { items }); return data.items; }
+export async function listAllMarkets(){ const { data } = await api.get<MarketOut[]>('/markets'); return data; }
