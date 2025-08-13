@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { getSnapshot, type SnapshotOut, type BCGPoint } from '../lib/api';
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ReferenceLine, Legend } from 'recharts';
+import { exportSummaryPDF } from '../lib/pdf';
 
 export default function ViewSnapshot(){
   const { id } = useParams();
@@ -14,14 +15,35 @@ export default function ViewSnapshot(){
     })();
   }, [id]);
 
+  const exportPDF = () => {
+    if (snap?.kind === 'BCG') {
+      exportSummaryPDF({ 
+        title: `BCG Matrix Snapshot — ${snap.id.slice(0,8)}`, 
+        bcgSelector: '#bcg-chart-view'
+      });
+    } else if (snap?.kind === 'SWOT') {
+      exportSummaryPDF({ 
+        title: `SWOT Analysis Snapshot — ${snap.id.slice(0,8)}`,
+        swot: snap.payload as any
+      });
+    }
+  };
+
   if (err) return <div className="container"><div className="card">Error: {err}</div></div>;
   if (!snap) return <div className="container"><div className="card">Loading…</div></div>;
 
   return (
     <div className="container">
       <div className="card" style={{ marginBottom: 16 }}>
-        <h2 style={{ margin: 0 }}>Snapshot — {snap.kind}</h2>
-        <div className="small">ID: {snap.id.slice(0,8)} • {new Date(snap.created_at).toLocaleString()}</div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h2 style={{ margin: 0 }}>Snapshot — {snap.kind}</h2>
+            <div className="small">ID: {snap.id.slice(0,8)} • {new Date(snap.created_at).toLocaleString()}</div>
+          </div>
+          <div>
+            <button className="btn" onClick={exportPDF}>Export PDF</button>
+          </div>
+        </div>
       </div>
 
       {snap.kind === 'BCG' && Array.isArray((snap.payload as any)?.points) ? (
@@ -60,7 +82,10 @@ export default function ViewSnapshot(){
       )}
 
       <div className="card" style={{ marginTop: 16 }}>
-        <div className="small">Read‑only share view. For edits, return to the main app.</div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div className="small">Read‑only share view. For edits, return to the main app.</div>
+          <a href="/" className="btn">Back to Main App</a>
+        </div>
       </div>
     </div>
   );
