@@ -79,17 +79,27 @@ export default function App(){
     if (!chartRef.current) return;
     
     // Wait a moment for any animations to complete
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 200));
     
     const canvas = await html2canvas(chartRef.current, {
       backgroundColor: '#ffffff',
       scale: 2, // Higher resolution
       useCORS: true,
       allowTaint: true,
-      width: chartRef.current.scrollWidth,
-      height: chartRef.current.scrollHeight,
+      width: 920, // Fixed width to match container
+      height: 532, // Fixed height (500 + padding)
       scrollX: 0,
-      scrollY: 0
+      scrollY: 0,
+      logging: true, // Enable logging for debugging
+      onclone: (clonedDoc) => {
+        // Ensure SVG elements are properly styled in the clone
+        const svgElements = clonedDoc.querySelectorAll('svg');
+        svgElements.forEach(svg => {
+          svg.style.overflow = 'visible';
+          svg.style.width = '900px';
+          svg.style.height = '500px';
+        });
+      }
     });
     
     const url = canvas.toDataURL('image/png');
@@ -181,16 +191,32 @@ export default function App(){
               Export PNG
             </button>
           </div>
-          <div id="bcg-chart" ref={chartRef} style={{ overflowX: 'auto', marginTop: 12, padding: 16, background: '#fff', borderRadius: 8 }}>
-            <ScatterChart width={900} height={500}>
-              <CartesianGrid />
-              <XAxis type="number" dataKey="rms" name="RMS" domain={[0, 'auto']} />
-              <YAxis type="number" dataKey="growth" name="Growth %" domain={[0, 'auto']} />
-              <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-              <ReferenceLine x={1} strokeDasharray="3 3" />
-              <ReferenceLine y={10} strokeDasharray="3 3" />
-              <Scatter data={data} name="Products" />
-            </ScatterChart>
+          <div 
+            id="bcg-chart" 
+            ref={chartRef} 
+            style={{ 
+              marginTop: 12, 
+              padding: 16, 
+              background: '#fff', 
+              borderRadius: 8,
+              width: '950px', // Fixed width to match chart
+              display: 'flex',
+              justifyContent: 'center',
+              boxSizing: 'border-box',
+              overflow: 'visible'
+            }}
+          >
+            <div style={{ width: '900px', height: '500px' }}>
+              <ScatterChart width={900} height={500}>
+                <CartesianGrid />
+                <XAxis type="number" dataKey="rms" name="RMS" domain={[0, 'auto']} />
+                <YAxis type="number" dataKey="growth" name="Growth %" domain={[0, 'auto']} />
+                <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+                <ReferenceLine x={1} strokeDasharray="3 3" />
+                <ReferenceLine y={10} strokeDasharray="3 3" />
+                <Scatter data={data} name="Products" />
+              </ScatterChart>
+            </div>
           </div>
         </div>
       </div>
