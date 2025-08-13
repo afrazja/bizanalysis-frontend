@@ -220,7 +220,19 @@ export default function App(){
                       <td style={{ padding: '6px 8px' }}>{count}</td>
                       <td style={{ padding: '6px 8px' }}>{shortId}</td>
                       <td style={{ padding: '6px 8px' }}>
-                        <button className="btn" onClick={() => downloadJSON(s, `snapshot-${shortId}.json`)}>Download</button>
+                        <div style={{ display: 'flex', gap: 4 }}>
+                          <button className="btn" onClick={() => downloadJSON(s, `snapshot-${shortId}.json`)}>Download</button>
+                          <button
+                            className="btn"
+                            onClick={() => {
+                              const url = `${location.origin}/view/${s.id}${location.search}`; // preserves ?customer=
+                              navigator.clipboard.writeText(url);
+                              alert('Link copied to clipboard');
+                            }}
+                          >
+                            Copy Link
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
