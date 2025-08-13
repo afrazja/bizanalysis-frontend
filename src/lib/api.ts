@@ -24,3 +24,24 @@ export async function getHealth() {
   const { data } = await api.get('/health');
   return data;
 }
+
+export type SnapshotIn = {
+  kind: 'SWOT' | 'BCG' | 'PESTLE' | 'PORTER' | 'VRIO' | 'ANSOFF';
+  payload: any;
+  note?: string;
+};
+
+export type SnapshotOut = SnapshotIn & {
+  id: string;
+  created_at: string; // ISO string
+};
+
+export async function createSnapshot(body: SnapshotIn) {
+  const { data } = await api.post<SnapshotOut>('/snapshots', body);
+  return data;
+}
+
+export async function listSnapshots(params?: { kind?: string; limit?: number }) {
+  const { data } = await api.get<SnapshotOut[]>('/snapshots', { params });
+  return data;
+}
