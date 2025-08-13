@@ -49,8 +49,8 @@ export default function ViewSnapshot(){
       {snap.kind === 'BCG' && Array.isArray((snap.payload as any)?.points) ? (
         <div className="card">
           <h3>BCG Matrix</h3>
-          <div id="bcg-chart-view" style={{ overflowX:'auto', marginTop:12, padding:8, background:'#fff' }}>
-            <ScatterChart width={700} height={350}>
+          <div id="bcg-chart-view" style={{ overflowX:'auto', marginTop:12, padding:16, background:'#fff', borderRadius: 8 }}>
+            <ScatterChart width={900} height={500}>
               <CartesianGrid />
               <XAxis type="number" dataKey="rms" name="RMS" domain={[0, 'auto']} />
               <YAxis type="number" dataKey="growth" name="Growth %" domain={[0, 'auto']} />

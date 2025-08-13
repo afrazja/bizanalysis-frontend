@@ -17,11 +17,26 @@ export async function exportSummaryPDF(opts: {
   if (opts.bcgSelector){
     const el = document.querySelector(opts.bcgSelector) as HTMLElement | null;
     if (el){
-      const canvas = await html2canvas(el, { backgroundColor: '#fff' });
+      // Wait for any animations to complete
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      const canvas = await html2canvas(el, { 
+        backgroundColor: '#ffffff',
+        scale: 2, // Higher resolution for PDF
+        useCORS: true,
+        allowTaint: true,
+        width: el.scrollWidth,
+        height: el.scrollHeight,
+        scrollX: 0,
+        scrollY: 0
+      });
+      
       const imgData = canvas.toDataURL('image/png');
       const pageWidth = doc.internal.pageSize.getWidth();
-      const imgW = pageWidth - marginX*2; const ratio = canvas.height / canvas.width;
+      const imgW = pageWidth - marginX*2; 
+      const ratio = canvas.height / canvas.width;
       const imgH = imgW * ratio; // scale to width
+      
       if (y + imgH > doc.internal.pageSize.getHeight() - 40){ doc.addPage(); y = 48; }
       doc.addImage(imgData, 'PNG', marginX, y, imgW, imgH);
       y += imgH + 12;

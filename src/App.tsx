@@ -77,11 +77,25 @@ export default function App(){
 
   const exportPNG = async () => {
     if (!chartRef.current) return;
-    const canvas = await html2canvas(chartRef.current);
+    
+    // Wait a moment for any animations to complete
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    const canvas = await html2canvas(chartRef.current, {
+      backgroundColor: '#ffffff',
+      scale: 2, // Higher resolution
+      useCORS: true,
+      allowTaint: true,
+      width: chartRef.current.scrollWidth,
+      height: chartRef.current.scrollHeight,
+      scrollX: 0,
+      scrollY: 0
+    });
+    
     const url = canvas.toDataURL('image/png');
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'bcg.png';
+    a.download = 'bcg-matrix.png';
     a.click();
   };
 
@@ -167,8 +181,8 @@ export default function App(){
               Export PNG
             </button>
           </div>
-          <div id="bcg-chart" ref={chartRef} style={{ overflowX: 'auto', marginTop: 12, padding: 8, background: '#fff' }}>
-            <ScatterChart width={700} height={350}>
+          <div id="bcg-chart" ref={chartRef} style={{ overflowX: 'auto', marginTop: 12, padding: 16, background: '#fff', borderRadius: 8 }}>
+            <ScatterChart width={900} height={500}>
               <CartesianGrid />
               <XAxis type="number" dataKey="rms" name="RMS" domain={[0, 'auto']} />
               <YAxis type="number" dataKey="growth" name="Growth %" domain={[0, 'auto']} />
