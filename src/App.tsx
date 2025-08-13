@@ -11,6 +11,8 @@ import {
   type SnapshotOut
 } from './lib/api';
 import QuickBCGWizard from './components/QuickBCGWizard';
+import SwotEditor from './components/SwotEditor';
+import { exportSummaryPDF } from './lib/pdf';
 
 const sample: ProductIn[] = [
   { name: 'Alpha', market_share: 0.30, largest_rival_share: 0.25, market_growth_rate: 14 },
@@ -124,6 +126,18 @@ export default function App(){
       <div className="card" style={{ marginBottom: 16 }}>
         <h2 style={{ margin: 0 }}>Biz Analysis (MVP)</h2>
         <div className="small">API Base: <span className="badge">{import.meta.env.VITE_API_BASE_URL || 'NOT SET'}</span></div>
+        <div style={{ marginTop: 8 }}>
+          <button className="btn" onClick={() => exportSummaryPDF({
+            title: 'Biz Analysis — Demo Summary',
+            bcgSelector: '#bcg-chart',
+            swot: {
+              strengths: [], // We'll pass real SWOT data in step 5
+              weaknesses: [],
+              opportunities: [],
+              threats: []
+            }
+          })}>Export PDF</button>
+        </div>
       </div>
 
       <DemoBanner />
@@ -150,7 +164,7 @@ export default function App(){
               Export PNG
             </button>
           </div>
-          <div ref={chartRef} style={{ overflowX: 'auto', marginTop: 12, padding: 8, background: '#fff' }}>
+          <div id="bcg-chart" ref={chartRef} style={{ overflowX: 'auto', marginTop: 12, padding: 8, background: '#fff' }}>
             <ScatterChart width={700} height={350}>
               <CartesianGrid />
               <XAxis type="number" dataKey="rms" name="RMS" domain={[0, 'auto']} />
@@ -213,6 +227,8 @@ export default function App(){
           )}
         </div>
       </div>
+
+      <SwotEditor />
     </div>
   );
 }
