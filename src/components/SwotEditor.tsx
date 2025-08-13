@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useImperativeHandle, useState, forwardRef } from 'react';
 import { postSWOT, createSnapshot, type SWOTIn } from '../lib/api';
 
 function TextAreaList({ label, value, setValue }: { label: string; value: string; setValue: (v:string)=>void }){
@@ -10,7 +10,9 @@ function TextAreaList({ label, value, setValue }: { label: string; value: string
   );
 }
 
-export default function SwotEditor(){
+export type SwotRef = { get: () => SWOTIn };
+
+const SwotEditor = forwardRef<SwotRef, {}>(function SwotEditor(_props, ref){
   const [s, setS] = useState('Strong brand\nLow cost base');
   const [w, setW] = useState('Churn in SMB');
   const [o, setO] = useState('APAC demand growing');
@@ -19,13 +21,11 @@ export default function SwotEditor(){
   const [savedId, setSavedId] = useState<string | null>(null);
 
   const toList = (txt:string) => txt.split(/\n+/).map(x=>x.trim()).filter(Boolean);
-
   const build = (): SWOTIn => ({
-    strengths: toList(s),
-    weaknesses: toList(w),
-    opportunities: toList(o),
-    threats: toList(t),
+    strengths: toList(s), weaknesses: toList(w), opportunities: toList(o), threats: toList(t)
   });
+
+  useImperativeHandle(ref, () => ({ get: build }));
 
   const generate = async () => {
     setBusy(true);
@@ -58,4 +58,6 @@ export default function SwotEditor(){
       <div className="small" style={{ marginTop:8 }}>Tip: paste bullets; one per line.</div>
     </div>
   );
-}
+});
+
+export default SwotEditor;
