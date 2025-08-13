@@ -9,6 +9,13 @@ Minimal UI that calls a FastAPI backend for business analyses.
 - **PNG Export**: Export BCG charts as downloadable images
 - **Demo Banner**: Dismissible banner indicating demo mode
 - **Health Check**: Backend connectivity verification
+- **CSV Import**: Bulk import markets/products from CSV files to generate BCG analysis
+
+### CSV Import
+- Use the built-in template to prepare a CSV with columns:
+  product_name, market_name, market_growth_rate, market_share_percent, largest_rival_share_percent
+- Upload the CSV → click **Create & Compute BCG**.
+- The app will create markets/products via the API and compute the BCG points for the chart.
 
 ## Local Dev
 ```bash
