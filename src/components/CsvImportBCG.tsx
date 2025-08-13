@@ -64,6 +64,7 @@ export default function CsvImportBCG({ onComputed }: { onComputed: (points: BCGP
     setBusy(true); setResultMsg(null); setParsingError(null);
     try {
       console.log('Starting CSV import with rows:', rows.length);
+      console.log('API Base URL:', import.meta.env.VITE_API_BASE_URL);
       
       let marketsCreated = 0;
       let productsCreated = 0;
@@ -121,7 +122,13 @@ export default function CsvImportBCG({ onComputed }: { onComputed: (points: BCGP
       }
     } catch (error) {
       console.error('CSV import error:', error);
-      setParsingError(`Import failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      let errorMessage = 'Unknown error';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === 'object' && error !== null) {
+        errorMessage = JSON.stringify(error);
+      }
+      setParsingError(`Import failed: ${errorMessage}. Check console for details.`);
     } finally {
       setBusy(false);
     }
