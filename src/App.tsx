@@ -10,6 +10,7 @@ import {
   listSnapshots,
   type SnapshotOut
 } from './lib/api';
+import QuickBCGWizard from './components/QuickBCGWizard';
 
 const sample: ProductIn[] = [
   { name: 'Alpha', market_share: 0.30, largest_rival_share: 0.25, market_growth_rate: 14 },
@@ -136,6 +137,10 @@ export default function App(){
 
         <div className="card">
           <h3>BCG Matrix (sample)</h3>
+          <div style={{ marginBottom: 12 }}>
+            <h4 style={{ margin: '4px 0' }}>Quick BCG Wizard (enter your own numbers)</h4>
+            <QuickBCGWizard onResult={setData} />
+          </div>
           <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
             <button className="btn" onClick={run}>POST /bcg</button>
             <button className="btn" onClick={saveSnapshot} disabled={saving || data.length === 0}>
