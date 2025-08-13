@@ -45,3 +45,16 @@ export async function listSnapshots(params?: { kind?: string; limit?: number }) 
   const { data } = await api.get<SnapshotOut[]>('/snapshots', { params });
   return data;
 }
+
+export type SWOTIn = {
+  strengths: string[];
+  weaknesses: string[];
+  opportunities: string[];
+  threats: string[];
+};
+export type SWOTOut = SWOTIn;
+
+export async function postSWOT(swot: SWOTIn) {
+  const { data } = await api.post<SWOTOut>('/swot', swot);
+  return data;
+}
