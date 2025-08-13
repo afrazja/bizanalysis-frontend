@@ -61,8 +61,10 @@ export default function CsvImportBCG({ onComputed }: { onComputed: (points: BCGP
 
   const createEntitiesAndCompute = async () => {
     if (!hasRows) return;
-    setBusy(true); setResultMsg(null);
+    setBusy(true); setResultMsg(null); setParsingError(null);
     try {
+      console.log('Starting CSV import with rows:', rows.length);
+      
       // 1) Create unique markets (by name)
       const marketMap = new Map<string, MarketIn>();
       for (const r of rows){
@@ -70,7 +72,10 @@ export default function CsvImportBCG({ onComputed }: { onComputed: (points: BCGP
           marketMap.set(r.market_name, { name: r.market_name, growth_rate: r.market_growth_rate });
         }
       }
+      console.log('Creating markets:', Array.from(marketMap.values()));
       const createdMkts = await bulkMarkets(Array.from(marketMap.values()));
+      console.log('Created markets:', createdMkts);
+      
       const nameToId = new Map<string, string>();
       createdMkts.forEach(m => nameToId.set(m.name, m.id));
 
@@ -81,7 +86,9 @@ export default function CsvImportBCG({ onComputed }: { onComputed: (points: BCGP
         market_share: r.market_share_percent / 100,
         largest_rival_share: r.largest_rival_share_percent / 100,
       }));
+      console.log('Creating products:', products);
       await bulkProducts(products);
+      console.log('Products created successfully');
 
       // 3) Compute BCG points directly for the chart
       const bcgInput = rows.map(r => ({
@@ -90,9 +97,16 @@ export default function CsvImportBCG({ onComputed }: { onComputed: (points: BCGP
         largest_rival_share: r.largest_rival_share_percent / 100,
         market_growth_rate: r.market_growth_rate,
       }));
+      console.log('Computing BCG with input:', bcgInput);
       const pts = await postBCG(bcgInput);
+      console.log('BCG computed:', pts);
+      
       onComputed(pts);
+      console.log('Called onComputed with points');
       setResultMsg(`Imported ${createdMkts.length} market(s) and ${products.length} product(s). BCG computed.`);
+    } catch (error) {
+      console.error('CSV import error:', error);
+      setParsingError(`Import failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setBusy(false);
     }
